@@ -47,7 +47,9 @@ anu.navigationOptions = ({ navigation }) => ({
   headerRight: () => (
     <Switch
       thumbColor={navigation.state.params?.autosave ? '#f5dd4b' : '#f4f3f4'}
-      onValueChange={(prev) => navigation.setParams({ autosave: !prev })}
+      onValueChange={() =>
+        navigation.setParams({ autosave: !navigation.state.params?.autosave })
+      }
       value={navigation.state.params?.autosave}
     />
   ),
