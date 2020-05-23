@@ -15,9 +15,10 @@ const styles = StyleSheet.create({
 });
 
 const anu: NavigationStackScreenComponent<
-  NavigationParams & {
-    autosave: boolean;
-  }
+  NavigationParams &
+    Partial<{
+      autosave: boolean;
+    }>
 > = () => {
   return (
     <View>
