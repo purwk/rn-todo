@@ -38,6 +38,7 @@ anu.navigationOptions = ({ navigation }) => ({
     : 'swipe ↓ to save, or toggle autosave →',
   headerTitleAlign: 'center',
   headerLeft: () => (
+    // <TouchableOpacity />
     <Button
       title="date"
       onPress={() => navigation.navigate('DateSelectionScreen')}
