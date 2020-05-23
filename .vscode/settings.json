@@ -1,0 +1,9 @@
+{
+  "editor.formatOnSave": true,
+  "javascript.validate.enable": false,
+  "typescript.quickSuggestionsForPaths": false,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  }
+}
