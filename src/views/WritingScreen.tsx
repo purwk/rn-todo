@@ -34,7 +34,7 @@ const anu: NavigationStackScreenComponent<
 
 anu.navigationOptions = ({ navigation }) => ({
   title: navigation.state.params?.autosave
-    ? 'gimana hari ini?'
+    ? 'what made you grateful for today?'
     : 'swipe ↓ to save, or toggle autosave →',
   headerTitleAlign: 'center',
   headerLeft: () => (
