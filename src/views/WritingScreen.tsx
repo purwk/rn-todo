@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, StyleSheet, Switch, TextInput, View } from 'react-native';
-import { NavigationParams } from 'react-navigation';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
 const styles = StyleSheet.create({
@@ -14,17 +13,15 @@ const styles = StyleSheet.create({
   placeholder: { color: 'gray' },
 });
 
-const anu: NavigationStackScreenComponent<
-  NavigationParams &
-    Partial<{
-      autosave: boolean;
-    }>
-> = () => {
+type AnuState = {
+  autosave: boolean;
+};
+const anu: NavigationStackScreenComponent<Partial<AnuState>> = () => {
   return (
     <View>
       <TextInput
         style={styles.input}
-        placeholder="tulais note."
+        placeholder="tulis note."
         placeholderTextColor={styles.placeholder.color}
         multiline={true}
       />
@@ -33,7 +30,7 @@ const anu: NavigationStackScreenComponent<
 };
 
 anu.navigationOptions = ({ navigation }) => ({
-  title: navigation.state.params?.autosave
+  title: navigation.getParam('autosave')
     ? 'what made you grateful today?'
     : 'swipe ↓ to save, or toggle autosave →',
   headerTitleAlign: 'center',
@@ -46,11 +43,9 @@ anu.navigationOptions = ({ navigation }) => ({
   ),
   headerRight: () => (
     <Switch
-      thumbColor={navigation.state.params?.autosave ? '#f5dd4b' : '#f4f3f4'}
-      onValueChange={() =>
-        navigation.setParams({ autosave: !navigation.state.params?.autosave })
-      }
-      value={navigation.state.params?.autosave}
+      thumbColor={navigation.getParam('autosave') ? '#f5dd4b' : '#f4f3f4'}
+      onValueChange={(nV) => navigation.setParams({ autosave: nV })}
+      value={navigation.getParam('autosave')}
     />
   ),
 });
