@@ -25,6 +25,8 @@ const styles = StyleSheet.create({
 type AnuState = {
   autosave: boolean;
   saving: boolean;
+  journalEntry: string;
+  savedEntryHash: number;
 };
 const anu: NavigationStackScreenComponent<Partial<AnuState>> = ({
   navigation,
@@ -36,7 +38,11 @@ const anu: NavigationStackScreenComponent<Partial<AnuState>> = ({
         <RefreshControl
           refreshing={!!getParam('saving')}
           enabled={!getParam('saving')}
-          onRefresh={savingJournal(setParams)}
+          onRefresh={saveJournal(
+            setParams,
+            getParam('journalEntry'),
+            getParam('savedEntryHash'),
+          )}
         />
       }
     >
@@ -45,6 +51,9 @@ const anu: NavigationStackScreenComponent<Partial<AnuState>> = ({
         placeholder="tulis note."
         placeholderTextColor={styles.placeholder.color}
         multiline={true}
+        editable={!getParam('saving')}
+        onChangeText={(text) => setParams({ journalEntry: text })}
+        value={getParam('journalEntry')}
       />
     </ScrollView>
   );
@@ -73,9 +82,18 @@ anu.navigationOptions = ({ navigation }) => {
         />
       ) : (
         <Button
-          disabled={getParam('saving')}
-          title="save"
-          onPress={savingJournal(setParams)}
+          disabled={!getParam('journalEntry') || getParam('saving')}
+          title={
+            hashCode(getParam('journalEntry') || '') ===
+            getParam('savedEntryHash')
+              ? 'saved!'
+              : 'save'
+          }
+          onPress={saveJournal(
+            setParams,
+            getParam('journalEntry'),
+            getParam('savedEntryHash'),
+          )}
         />
       ),
   };
@@ -85,13 +103,31 @@ function hasRefreshControlSupport() {
   return ['ios', 'android'].includes(Platform.OS);
 }
 
-function savingJournal(
+function saveJournal(
   setParams: (newParams: Partial<Partial<AnuState>>) => boolean,
+  journalEntry: string | undefined,
+  savedEntryHash: number | undefined,
 ): () => void {
+  if (!journalEntry) {
+    return () => {};
+  }
+  const newEntryHash = hashCode(journalEntry);
+  if (newEntryHash === savedEntryHash) {
+    return () => {};
+  }
   return () => {
     setParams({ saving: true });
+    // TODO: save somewhere
+    setParams({ savedEntryHash: newEntryHash });
     setTimeout(() => setParams({ saving: false }), 2000);
   };
+}
+
+function hashCode(str: string): number {
+  return Array.from(str).reduce(
+    (s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0,
+    0,
+  );
 }
 
 export default anu;
