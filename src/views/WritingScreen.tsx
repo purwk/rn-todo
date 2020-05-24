@@ -1,9 +1,18 @@
 import React from 'react';
-import { Button, StyleSheet, Switch, TextInput, View } from 'react-native';
+import {
+  Button,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  TextInput,
+} from 'react-native';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
 const styles = StyleSheet.create({
   input: {
+    height: 1000,
     paddingTop: 10,
     paddingRight: 15,
     fontSize: 34,
@@ -15,39 +24,74 @@ const styles = StyleSheet.create({
 
 type AnuState = {
   autosave: boolean;
+  saving: boolean;
 };
-const anu: NavigationStackScreenComponent<Partial<AnuState>> = () => {
+const anu: NavigationStackScreenComponent<Partial<AnuState>> = ({
+  navigation,
+}) => {
+  const [setParams, getParam] = [navigation.setParams, navigation.getParam];
   return (
-    <View>
+    <ScrollView
+      refreshControl={
+        <RefreshControl
+          refreshing={!!getParam('saving')}
+          enabled={!getParam('saving')}
+          onRefresh={savingJournal(setParams)}
+        />
+      }
+    >
       <TextInput
         style={styles.input}
         placeholder="tulis note."
         placeholderTextColor={styles.placeholder.color}
         multiline={true}
       />
-    </View>
+    </ScrollView>
   );
 };
 
-anu.navigationOptions = ({ navigation }) => ({
-  title: navigation.getParam('autosave')
-    ? 'what made you grateful today?'
-    : 'swipe ↓ to save, or toggle autosave →',
-  headerTitleAlign: 'center',
-  headerLeft: () => (
-    // <TouchableOpacity />
-    <Button
-      title="date"
-      onPress={() => navigation.navigate('DateSelectionScreen')}
-    />
-  ),
-  headerRight: () => (
-    <Switch
-      thumbColor={navigation.getParam('autosave') ? '#f5dd4b' : '#f4f3f4'}
-      onValueChange={(nV) => navigation.setParams({ autosave: nV })}
-      value={navigation.getParam('autosave')}
-    />
-  ),
-});
+anu.navigationOptions = ({ navigation }) => {
+  const [setParams, getParam] = [navigation.setParams, navigation.getParam];
+  return {
+    title:
+      !hasRefreshControlSupport() || getParam('autosave')
+        ? 'what made you grateful today?'
+        : 'pull ↓ to save, or toggle autosave →',
+    headerTitleAlign: 'center',
+    headerLeft: () => (
+      <Button
+        title="date"
+        onPress={() => navigation.navigate('DateSelectionScreen')}
+      />
+    ),
+    headerRight: () =>
+      hasRefreshControlSupport() ? (
+        <Switch
+          disabled={getParam('saving')}
+          onValueChange={(nV) => setParams({ autosave: nV })}
+          value={getParam('autosave')}
+        />
+      ) : (
+        <Button
+          disabled={getParam('saving')}
+          title="save"
+          onPress={savingJournal(setParams)}
+        />
+      ),
+  };
+};
+
+function hasRefreshControlSupport() {
+  return ['ios', 'android'].includes(Platform.OS);
+}
+
+function savingJournal(
+  setParams: (newParams: Partial<Partial<AnuState>>) => boolean,
+): () => void {
+  return () => {
+    setParams({ saving: true });
+    setTimeout(() => setParams({ saving: false }), 2000);
+  };
+}
 
 export default anu;
